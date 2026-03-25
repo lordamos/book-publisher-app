@@ -5,6 +5,7 @@ import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import { kdpRouter } from "./routers/kdp";
 import { aiRouter } from "./routers/ai";
 import { autosaveRouter } from "./routers/autosave";
+import { pdfRouter } from "./routers/pdf";
 import { z } from "zod";
 import {
   getBooksByUserId,
@@ -195,6 +196,9 @@ export const appRouter = router({
 
   // Auto-Save and Backup
   autosave: autosaveRouter,
+
+  // PDF Generation
+  pdf: pdfRouter,
 
   // Metadata management
   metadata: router({
