@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { asc, desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, books, pages, chapters, bookImages, bookMetadata, InsertBook, InsertPage, InsertChapter, InsertBookImage, InsertBookMetadata } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +89,98 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// Book operations
+export async function getBooksByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(books).where(eq(books.userId, userId)).orderBy(desc(books.updatedAt));
+}
+
+export async function getBookById(bookId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(books).where(eq(books.id, bookId)).limit(1);
+  return result[0];
+}
+
+export async function createBook(data: InsertBook) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(books).values(data);
+  return result[0];
+}
+
+export async function updateBook(bookId: number, data: Partial<InsertBook>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(books).set(data).where(eq(books.id, bookId));
+}
+
+// Page operations
+export async function getPagesByBookId(bookId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(pages).where(eq(pages.bookId, bookId)).orderBy(asc(pages.pageNumber));
+}
+
+export async function createPage(data: InsertPage) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(pages).values(data);
+  return result[0];
+}
+
+export async function updatePage(pageId: number, data: Partial<InsertPage>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(pages).set(data).where(eq(pages.id, pageId));
+}
+
+// Chapter operations
+export async function getChaptersByBookId(bookId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(chapters).where(eq(chapters.bookId, bookId)).orderBy(asc(chapters.chapterNumber));
+}
+
+export async function createChapter(data: InsertChapter) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(chapters).values(data);
+  return result[0];
+}
+
+// Image operations
+export async function getImagesByBookId(bookId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(bookImages).where(eq(bookImages.bookId, bookId));
+}
+
+export async function createBookImage(data: InsertBookImage) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(bookImages).values(data);
+  return result[0];
+}
+
+// Metadata operations
+export async function getBookMetadata(bookId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(bookMetadata).where(eq(bookMetadata.bookId, bookId)).limit(1);
+  return result[0];
+}
+
+export async function createBookMetadata(data: InsertBookMetadata) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(bookMetadata).values(data);
+  return result[0];
+}
+
+export async function updateBookMetadata(bookId: number, data: Partial<InsertBookMetadata>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(bookMetadata).set(data).where(eq(bookMetadata.bookId, bookId));
+}

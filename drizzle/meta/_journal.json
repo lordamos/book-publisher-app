@@ -1,5 +1,20 @@
 {
   "version": "7",
   "dialect": "mysql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1774391298384,
+      "tag": "0000_useful_toxin",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1774391828304,
+      "tag": "0001_curvy_jackpot",
+      "breakpoints": true
+    }
+  ]
 }
