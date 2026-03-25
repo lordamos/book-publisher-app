@@ -15,6 +15,13 @@
       "when": 1774391828304,
       "tag": "0001_curvy_jackpot",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1774415132264,
+      "tag": "0002_clammy_mauler",
+      "breakpoints": true
     }
   ]
 }

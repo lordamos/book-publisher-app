@@ -104,3 +104,35 @@ export const bookMetadata = mysqlTable("bookMetadata", {
 
 export type BookMetadata = typeof bookMetadata.$inferSelect;
 export type InsertBookMetadata = typeof bookMetadata.$inferInsert;
+
+/**
+ * Book templates for different genres
+ */
+export const templates = mysqlTable("templates", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  genre: varchar("genre", { length: 100 }).notNull(),
+  description: text("description"),
+  coverColor: varchar("coverColor", { length: 7 }).default("#1a1a1a"),
+  accentColor: varchar("accentColor", { length: 7 }).default("#ff6b6b"),
+  bodyFont: varchar("bodyFont", { length: 100 }).default("Helvetica"),
+  headingFont: varchar("headingFont", { length: 100 }).default("Helvetica-Bold"),
+  bodyFontSize: int("bodyFontSize").default(12),
+  headingFontSize: int("headingFontSize").default(24),
+  lineHeight: varchar("lineHeight", { length: 10 }).default("1.5"),
+  marginTop: varchar("marginTop", { length: 10 }).default("0.75"),
+  marginBottom: varchar("marginBottom", { length: 10 }).default("0.75"),
+  marginLeft: varchar("marginLeft", { length: 10 }).default("0.75"),
+  marginRight: varchar("marginRight", { length: 10 }).default("0.75"),
+  chapterStyle: varchar("chapterStyle", { length: 50 }).default("numbered"),
+  includeTableOfContents: int("includeTableOfContents").default(1),
+  includeFrontMatter: int("includeFrontMatter").default(1),
+  includeBackMatter: int("includeBackMatter").default(1),
+  isPublic: int("isPublic").default(1),
+  createdBy: int("createdBy"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Template = typeof templates.$inferSelect;
+export type InsertTemplate = typeof templates.$inferInsert;

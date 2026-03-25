@@ -6,6 +6,7 @@ import { kdpRouter } from "./routers/kdp";
 import { aiRouter } from "./routers/ai";
 import { autosaveRouter } from "./routers/autosave";
 import { pdfRouter } from "./routers/pdf";
+import { templatesRouter } from "./routers/templates";
 import { z } from "zod";
 import {
   getBooksByUserId,
@@ -26,6 +27,7 @@ import {
 
 export const appRouter = router({
   system: systemRouter,
+  templates: templatesRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
