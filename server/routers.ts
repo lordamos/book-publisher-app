@@ -11,6 +11,7 @@ import { presetsRouter } from "./routers/presets";
 import { recommendationsRouter } from "./routers/recommendations";
 import { batchRouter } from "./routers/batch";
 import { versionsRouter } from "./routers/versions";
+import { diffRouter } from "./routers/diff";
 import { z } from "zod";
 import {
   getBooksByUserId,
@@ -36,6 +37,7 @@ export const appRouter = router({
   recommendations: recommendationsRouter,
   batch: batchRouter,
   versions: versionsRouter,
+  diff: diffRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

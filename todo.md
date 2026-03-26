@@ -278,3 +278,18 @@
 - [x] Implement version cleanup and retention policies
 - [x] Create version history tests (23 tests passing)
 - [x] Add version history UI components with tabs
+
+
+## Phase 18: Visual Diffing Feature
+- [x] Create diff algorithm service for text comparison (Myers' algorithm)
+- [x] Implement line-by-line and word-level diff detection
+- [x] Build tRPC endpoints for version comparison (5 endpoints)
+- [x] Create visual diff UI components (VisualDiffViewer)
+- [x] Implement side-by-side diff view with line numbers
+- [x] Implement unified diff view (git-style)
+- [x] Add color-coded highlighting (green for additions, red for deletions)
+- [x] Create diff statistics and summary panel
+- [x] Add line number tracking and navigation
+- [x] Implement word-level diff highlighting
+- [x] Create visual diffing tests (37 tests passing)
+- [x] Integrate diffing into version comparison workflow
