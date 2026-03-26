@@ -136,3 +136,59 @@ export const templates = mysqlTable("templates", {
 
 export type Template = typeof templates.$inferSelect;
 export type InsertTemplate = typeof templates.$inferInsert;
+
+
+/**
+ * Book versions table for version history and restore functionality
+ */
+export const bookVersions = mysqlTable("bookVersions", {
+  id: int("id").autoincrement().primaryKey(),
+  bookId: int("bookId").notNull().references(() => books.id, { onDelete: "cascade" }),
+  versionNumber: int("versionNumber").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  snapshot: text("snapshot").notNull(), // JSON snapshot of book state
+  changesSummary: text("changesSummary"), // Summary of changes from previous version
+  createdBy: int("createdBy").notNull().references(() => users.id),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  isAutoSave: int("isAutoSave").default(0), // 1 if auto-saved, 0 if manual
+  pageCount: int("pageCount").default(0),
+  characterCount: int("characterCount").default(0),
+});
+
+export type BookVersion = typeof bookVersions.$inferSelect;
+export type InsertBookVersion = typeof bookVersions.$inferInsert;
+
+/**
+ * Version metadata table for tracking changes and diffs
+ */
+export const versionMetadata = mysqlTable("versionMetadata", {
+  id: int("id").autoincrement().primaryKey(),
+  versionId: int("versionId").notNull().references(() => bookVersions.id, { onDelete: "cascade" }),
+  pagesAdded: int("pagesAdded").default(0),
+  pagesDeleted: int("pagesDeleted").default(0),
+  pagesModified: int("pagesModified").default(0),
+  imagesAdded: int("imagesAdded").default(0),
+  imagesDeleted: int("imagesDeleted").default(0),
+  chaptersAdded: int("chaptersAdded").default(0),
+  chaptersDeleted: int("chaptersDeleted").default(0),
+  metadataChanged: int("metadataChanged").default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type VersionMetadata = typeof versionMetadata.$inferSelect;
+export type InsertVersionMetadata = typeof versionMetadata.$inferInsert;
+
+/**
+ * Version tags table for marking important versions
+ */
+export const versionTags = mysqlTable("versionTags", {
+  id: int("id").autoincrement().primaryKey(),
+  versionId: int("versionId").notNull().references(() => bookVersions.id, { onDelete: "cascade" }),
+  tag: varchar("tag", { length: 50 }).notNull(),
+  description: text("description"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type VersionTag = typeof versionTags.$inferSelect;
+export type InsertVersionTag = typeof versionTags.$inferInsert;

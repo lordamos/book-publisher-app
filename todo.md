@@ -263,3 +263,18 @@
 - [x] Implement rollback capability for batch updates
 - [x] Add batch update tests (50 tests passing)
 - [x] Create BatchUpdateDialog UI component with tRPC integration
+
+
+## Phase 17: Version History & Restore
+- [x] Create bookVersions table in database schema
+- [x] Implement version snapshot creation on save
+- [x] Build version management service (version-manager.ts)
+- [x] Create tRPC endpoints for version operations (versions router)
+- [x] Build version history timeline UI (VersionHistoryPanel)
+- [x] Implement version comparison view
+- [x] Add restore to version functionality with backup creation
+- [x] Create change tracking and diff visualization
+- [x] Add version metadata (timestamp, author, changes summary)
+- [x] Implement version cleanup and retention policies
+- [x] Create version history tests (23 tests passing)
+- [x] Add version history UI components with tabs
