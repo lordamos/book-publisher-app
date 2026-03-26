@@ -12,6 +12,7 @@ import { recommendationsRouter } from "./routers/recommendations";
 import { batchRouter } from "./routers/batch";
 import { versionsRouter } from "./routers/versions";
 import { diffRouter } from "./routers/diff";
+import { mergeRouter } from "./routers/merge";
 import { z } from "zod";
 import {
   getBooksByUserId,
@@ -38,6 +39,7 @@ export const appRouter = router({
   batch: batchRouter,
   versions: versionsRouter,
   diff: diffRouter,
+  merge: mergeRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

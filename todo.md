@@ -293,3 +293,17 @@
 - [x] Implement word-level diff highlighting
 - [x] Create visual diffing tests (37 tests passing)
 - [x] Integrate diffing into version comparison workflow
+
+
+## Phase 19: Selective Merge Feature
+- [x] Create merge engine service with selective change acceptance logic (MergeEngine class)
+- [x] Implement conflict detection and resolution (3 conflict types: edit-edit, edit-delete, delete-edit)
+- [x] Build tRPC endpoints for merge operations (10 endpoints: extractChanges, previewMerge, executeMerge, detectConflicts, resolveConflict, acceptChangesByType, rejectChangesByType, acceptAll, rejectAll, getStatistics)
+- [x] Create MergeInterface UI component with change selection
+- [x] Implement accept/reject buttons for individual changes with checkboxes
+- [x] Add "Accept All" and "Reject All" options with batch operations
+- [x] Create merge preview showing final result
+- [x] Implement conflict resolution UI with custom text support
+- [x] Add merge statistics and tracking
+- [x] Create merge operation tests (34 tests passing)
+- [x] Integrate merge into version comparison workflow
