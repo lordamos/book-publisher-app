@@ -224,3 +224,16 @@
 - [x] Create preset management (search, filter by category)
 - [x] Add preset search and filtering
 - [x] Create style presets tests (35 tests passing)
+
+
+## Phase 14: Smart Preset Recommendations
+- [x] Create genre-to-preset mapping system (15 genres supported)
+- [x] Implement content analysis for tone detection (8 tones: formal, casual, dramatic, humorous, serious, mysterious, romantic, technical)
+- [x] Build recommendation algorithm based on genre and content
+- [x] Create PresetRecommender service with scoring logic
+- [x] Add tRPC endpoints for getting recommendations (forBook, byGenreAndContent, analyzeTone, byGenre)
+- [x] Create RecommendedPresetsPanel UI component with ranked recommendations
+- [x] Implement confidence scoring for recommendations (0-100%)
+- [x] Add explanation for why presets are recommended
+- [x] Create recommendation tests (40 tests passing)
+- [x] Integrate recommendations into book editor workflow

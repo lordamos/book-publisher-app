@@ -8,6 +8,7 @@ import { autosaveRouter } from "./routers/autosave";
 import { pdfRouter } from "./routers/pdf";
 import { templatesRouter } from "./routers/templates";
 import { presetsRouter } from "./routers/presets";
+import { recommendationsRouter } from "./routers/recommendations";
 import { z } from "zod";
 import {
   getBooksByUserId,
@@ -30,6 +31,7 @@ export const appRouter = router({
   system: systemRouter,
   templates: templatesRouter,
   presets: presetsRouter,
+  recommendations: recommendationsRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
