@@ -322,3 +322,20 @@
 - [x] Add tRPC router for side-by-side operations (6 endpoints)
 - [x] Create side-by-side comparison tests (33 tests passing)
 - [x] Integrate side-by-side view into version comparison workflow
+
+
+## Phase 21: Side-by-Side Diff PDF Export
+- [x] Create PDF export service for side-by-side diffs (diff-pdf-export.ts)
+- [x] Implement page layout with dual columns and color-coded highlighting
+- [x] Add headers and footers with metadata (title, version labels, timestamps)
+- [x] Implement color-coded highlighting (green for additions, red for deletions, gray for context)
+- [x] Add page breaks and pagination with page numbering
+- [x] Create statistics table for large diffs (additions, deletions, modifications, similarity)
+- [x] Build tRPC endpoint for PDF generation (diffexport router with 4 endpoints)
+- [x] Create export dialog UI component (DiffPDFExportDialog)
+- [x] Add export options (color scheme: light/dark, page size: letter/a4, font size, line numbers, statistics)
+- [x] Implement download functionality with base64 encoding
+- [x] Create PDF export tests (36 tests passing)
+- [x] Implement HTML preview generation for browser viewing
+- [x] Add validation for export parameters (text size limits, font size ranges)
+- [x] Integrate export into side-by-side viewer workflow

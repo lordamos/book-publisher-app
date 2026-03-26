@@ -14,6 +14,7 @@ import { versionsRouter } from "./routers/versions";
 import { diffRouter } from "./routers/diff";
 import { mergeRouter } from "./routers/merge";
 import { sideBySideRouter } from "./routers/sidebyside";
+import { diffExportRouter } from "./routers/diffexport";
 import { z } from "zod";
 import {
   getBooksByUserId,
@@ -42,6 +43,7 @@ export const appRouter = router({
   diff: diffRouter,
   merge: mergeRouter,
   sidebyside: sideBySideRouter,
+  diffexport: diffExportRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
