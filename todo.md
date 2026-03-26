@@ -307,3 +307,18 @@
 - [x] Add merge statistics and tracking
 - [x] Create merge operation tests (34 tests passing)
 - [x] Integrate merge into version comparison workflow
+
+
+## Phase 20: Side-by-Side Version Comparison
+- [x] Create SideBySideDiffViewer component with dual panes
+- [x] Implement synchronized scrolling between left and right panels
+- [x] Add line-by-line highlighting for changes (additions, deletions, modifications)
+- [x] Create line number tracking and navigation
+- [x] Build comparison statistics panel with change counts
+- [x] Implement view mode toggle (inline vs side-by-side)
+- [x] Add layout controls (zoom, line numbers toggle)
+- [x] Create change navigation (next/previous change buttons)
+- [x] Implement search within side-by-side view
+- [x] Add tRPC router for side-by-side operations (6 endpoints)
+- [x] Create side-by-side comparison tests (33 tests passing)
+- [x] Integrate side-by-side view into version comparison workflow
