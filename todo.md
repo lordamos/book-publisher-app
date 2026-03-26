@@ -250,3 +250,16 @@
 - [x] Add preview refresh on content changes
 - [x] Implement preview performance optimization with memoization
 - [x] Create real-time preview tests (35 tests passing)
+
+
+## Phase 16: Batch Page Updates
+- [x] Create batch update service for applying changes to multiple pages
+- [x] Implement page selection UI (all pages, by type, by range, custom selection)
+- [x] Add "Apply to All" button with confirmation dialog
+- [x] Create batch update progress indicator
+- [x] Implement selective application (cover, chapter, full_image, text_only, blank)
+- [x] Add validation for batch operations
+- [x] Create batch update validation with comprehensive error checking
+- [x] Implement rollback capability for batch updates
+- [x] Add batch update tests (50 tests passing)
+- [x] Create BatchUpdateDialog UI component with tRPC integration

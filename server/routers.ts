@@ -9,6 +9,7 @@ import { pdfRouter } from "./routers/pdf";
 import { templatesRouter } from "./routers/templates";
 import { presetsRouter } from "./routers/presets";
 import { recommendationsRouter } from "./routers/recommendations";
+import { batchRouter } from "./routers/batch";
 import { z } from "zod";
 import {
   getBooksByUserId,
@@ -32,6 +33,7 @@ export const appRouter = router({
   templates: templatesRouter,
   presets: presetsRouter,
   recommendations: recommendationsRouter,
+  batch: batchRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
