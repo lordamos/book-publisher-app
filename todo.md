@@ -339,3 +339,12 @@
 - [x] Implement HTML preview generation for browser viewing
 - [x] Add validation for export parameters (text size limits, font size ranges)
 - [x] Integrate export into side-by-side viewer workflow
+
+
+## Phase 22: Batch Export Feature
+- [x] Design batch export architecture and data structures
+- [x] Create batch export service with PDF merging and ZIP creation (batch-diff-export.ts)
+- [x] Build tRPC endpoints for batch export operations (batchexport router with 5 endpoints)
+- [x] Create batch export UI components (BatchDiffExportDialog with multi-tab interface)
+- [x] Implement batch export tests and validation (34 tests passing)
+- [x] Integrate batch export into version history and diff viewer
