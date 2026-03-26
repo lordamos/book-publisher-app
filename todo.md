@@ -360,3 +360,17 @@
 - [x] Test all UI improvements (all 480 tests passing)
 - [x] Add comprehensive CSS animations library with 20+ animation utilities
 - [x] Implement smooth transitions for all interactive elements
+
+
+## Phase 24: Keyboard Shortcuts for Export Dialogs
+- [x] Create keyboard shortcut utilities and hooks (useKeyboardShortcuts.ts with 3 hooks)
+- [x] Implement Cmd/Ctrl+E for quick export trigger (platform-aware)
+- [x] Implement Escape key to close dialogs
+- [x] Add Tab navigation through export dialogs (useFocusTrap hook)
+- [x] Implement keyboard shortcuts in BatchDiffExportDialog
+- [x] Implement keyboard shortcuts in DiffPDFExportDialog
+- [x] Add keyboard shortcut help/documentation (KeyboardShortcutsHelp component)
+- [x] Create keyboard shortcut tests (useKeyboardShortcuts.test.ts with 15+ tests)
+- [x] Test accessibility with keyboard navigation (focus trap, Escape handling)
+- [x] Verify TypeScript compilation (clean)
+- [x] All 480 tests passing (no regressions)

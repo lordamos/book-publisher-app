@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -32,6 +32,11 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
+import {
+  useKeyboardShortcuts,
+  useDialogKeyboardInteractions,
+  formatKeyboardShortcut,
+} from "@/hooks/useKeyboardShortcuts";
 
 interface DiffPDFExportDialogProps {
   oldText: string;
@@ -57,8 +62,35 @@ export default function DiffPDFExportDialog({
   const [showLineNumbers, setShowLineNumbers] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [activeTab, setActiveTab] = useState("settings");
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const exportButtonRef = useRef<HTMLButtonElement>(null);
 
   const generatePDFMutation = trpc.diffexport.generatePDF.useMutation();
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts(
+    [
+      {
+        key: "e",
+        meta: true,
+        callback: () => {
+          if (!open) {
+            setOpen(true);
+          } else if (!isGenerating) {
+            handleGeneratePDF();
+          }
+        },
+        description: "Quick export",
+      },
+    ],
+    true
+  );
+
+  useDialogKeyboardInteractions(
+    () => setOpen(false),
+    dialogRef as React.RefObject<HTMLElement>,
+    open
+  );
 
   const handleGeneratePDF = async () => {
     setIsGenerating(true);

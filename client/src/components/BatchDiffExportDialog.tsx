@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -36,6 +36,11 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
+import {
+  useKeyboardShortcuts,
+  useDialogKeyboardInteractions,
+  formatKeyboardShortcut,
+} from "@/hooks/useKeyboardShortcuts";
 
 interface DiffReportItem {
   id: string;
@@ -71,6 +76,8 @@ export default function BatchDiffExportDialog({
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
   const [activeTab, setActiveTab] = useState("selection");
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const exportButtonRef = useRef<HTMLButtonElement>(null);
 
   const exportMutation = trpc.batchexport.exportReports.useMutation();
   const statsQuery = trpc.batchexport.getStatistics.useQuery(
@@ -92,6 +99,31 @@ export default function BatchDiffExportDialog({
         .map((id) => reports.find((r) => r.id === id))
         .filter((r) => r !== undefined) as DiffReportItem[],
     [selectedReports, reports]
+  );
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts(
+    [
+      {
+        key: "e",
+        meta: true,
+        callback: () => {
+          if (!open) {
+            setOpen(true);
+          } else if (selectedReportsList.length > 0 && !isExporting) {
+            handleExport();
+          }
+        },
+        description: "Quick export",
+      },
+    ],
+    true
+  );
+
+  useDialogKeyboardInteractions(
+    () => setOpen(false),
+    dialogRef as React.RefObject<HTMLElement>,
+    open
   );
 
   const handleSelectAll = () => {
