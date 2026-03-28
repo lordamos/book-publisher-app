@@ -16,6 +16,7 @@ import { mergeRouter } from "./routers/merge";
 import { sideBySideRouter } from "./routers/sidebyside";
 import { diffExportRouter } from "./routers/diffexport";
 import { batchExportRouter } from "./routers/batchexport";
+import { coverTemplatesRouter } from "./routers/covertemplates";
 import { z } from "zod";
 import {
   getBooksByUserId,
@@ -46,6 +47,7 @@ export const appRouter = router({
   sidebyside: sideBySideRouter,
   diffexport: diffExportRouter,
   batchexport: batchExportRouter,
+  covertemplates: coverTemplatesRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
