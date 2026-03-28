@@ -384,3 +384,5 @@ export const coverTemplatesRouter = router({
       };
     })
 });
+
+// Font endpoints will be added here
