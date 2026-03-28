@@ -192,3 +192,54 @@ export const versionTags = mysqlTable("versionTags", {
 
 export type VersionTag = typeof versionTags.$inferSelect;
 export type InsertVersionTag = typeof versionTags.$inferInsert;
+
+/**
+ * Font preview cache table for storing generated preview images
+ */
+export const fontPreviewCache = mysqlTable("fontPreviewCache", {
+  id: int("id").autoincrement().primaryKey(),
+  previewKey: varchar("previewKey", { length: 255 }).notNull().unique(),
+  headingFont: varchar("headingFont", { length: 100 }).notNull(),
+  bodyFont: varchar("bodyFont", { length: 100 }).notNull(),
+  headingWeight: varchar("headingWeight", { length: 20 }).notNull(),
+  bodyWeight: varchar("bodyWeight", { length: 20 }).notNull(),
+  headingStyle: varchar("headingStyle", { length: 20 }).notNull(),
+  bodyStyle: varchar("bodyStyle", { length: 20 }).notNull(),
+  // Preview URLs for different sizes
+  thumbnailUrl: text("thumbnailUrl"),
+  smallUrl: text("smallUrl"),
+  mediumUrl: text("mediumUrl"),
+  largeUrl: text("largeUrl"),
+  // Metadata
+  generatedAt: timestamp("generatedAt").defaultNow().notNull(),
+  expiresAt: timestamp("expiresAt"),
+  accessCount: int("accessCount").default(0),
+  lastAccessedAt: timestamp("lastAccessedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type FontPreviewCache = typeof fontPreviewCache.$inferSelect;
+export type InsertFontPreviewCache = typeof fontPreviewCache.$inferInsert;
+
+/**
+ * Font pair favorites table for storing user's favorite font combinations
+ */
+export const fontPairFavorites = mysqlTable("fontPairFavorites", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  headingFont: varchar("headingFont", { length: 100 }).notNull(),
+  bodyFont: varchar("bodyFont", { length: 100 }).notNull(),
+  headingWeight: varchar("headingWeight", { length: 20 }).notNull(),
+  bodyWeight: varchar("bodyWeight", { length: 20 }).notNull(),
+  headingStyle: varchar("headingStyle", { length: 20 }).notNull(),
+  bodyStyle: varchar("bodyStyle", { length: 20 }).notNull(),
+  name: varchar("name", { length: 255 }),
+  description: text("description"),
+  usageCount: int("usageCount").default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type FontPairFavorite = typeof fontPairFavorites.$inferSelect;
+export type InsertFontPairFavorite = typeof fontPairFavorites.$inferInsert;
