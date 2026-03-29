@@ -60,7 +60,7 @@ export function useKeyboardShortcuts(
       const metaKey = shortcut.meta ?? false;
 
       // On Mac, Cmd is meta; on Windows/Linux, Ctrl is ctrl
-      const isMac = /Mac|iPhone|iPad|iPod/.test(navigator.platform);
+      const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.platform);
       const effectiveCtrl = isMac ? event.metaKey : event.ctrlKey;
 
       const ctrlMatches = ctrlKey === effectiveCtrl;
@@ -174,7 +174,7 @@ export function formatKeyboardShortcut(shortcut: KeyboardShortcut): string {
   const parts: string[] = [];
 
   if (shortcut.meta) {
-    const isMac = /Mac|iPhone|iPad|iPod/.test(navigator.platform);
+    const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.platform);
     parts.push(isMac ? '⌘' : 'Ctrl');
   }
   if (shortcut.ctrl) {
