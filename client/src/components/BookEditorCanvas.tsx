@@ -1,6 +1,14 @@
 import { Page } from "@shared/types";
 import { useRef, useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
+import { TextFormattingToolbar } from "./TextFormattingToolbar";
+import {
+  applyTextFormat,
+  detectCurrentFormats,
+  hasTextSelection,
+  getSelectionPosition,
+  type TextFormat,
+} from "@/lib/textFormatting";
 
 interface BookEditorCanvasProps {
   page: Page;
@@ -21,6 +29,15 @@ export function BookEditorCanvas({
   const pageContentRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState<{ index: number; startX: number; startY: number; type: string } | null>(null);
   const [isEditing, setIsEditing] = useState<number | null>(null);
+  const [showToolbar, setShowToolbar] = useState(false);
+  const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
+  const [currentFormats, setCurrentFormats] = useState<TextFormat>({
+    bold: false,
+    italic: false,
+    underline: false,
+    fontSize: 16,
+    color: "#000000",
+  });
   const [content, setContent] = useState(() => {
     try {
       return page.content ? JSON.parse(page.content) : { textBlocks: [], images: [] };
@@ -147,10 +164,32 @@ export function BookEditorCanvas({
 
   const handleTextBlockBlur = (index: number) => {
     setIsEditing(null);
+    setShowToolbar(false);
     updatePageMutation.mutate({
       pageId: page.id,
       data: { content: JSON.stringify(content) },
     });
+  };
+
+  const handleTextSelection = () => {
+    if (isEditing !== null && hasTextSelection()) {
+      const position = getSelectionPosition();
+      setToolbarPosition(position);
+      setShowToolbar(true);
+      const formats = detectCurrentFormats();
+      setCurrentFormats(formats);
+    } else {
+      setShowToolbar(false);
+    }
+  };
+
+  const handleFormatChange = (format: string, value: any) => {
+    applyTextFormat(format, value);
+    // Update current formats after applying
+    setTimeout(() => {
+      const formats = detectCurrentFormats();
+      setCurrentFormats(formats);
+    }, 0);
   };
 
   return (
@@ -208,9 +247,12 @@ export function BookEditorCanvas({
               // Allow Escape to exit editing mode
               if (e.key === "Escape") {
                 setIsEditing(null);
+                setShowToolbar(false);
                 e.currentTarget.blur();
               }
             }}
+            onMouseUp={handleTextSelection}
+            onKeyUp={handleTextSelection}
           >
             {block.text}
           </div>
@@ -251,6 +293,15 @@ export function BookEditorCanvas({
       >
         + Add Text
       </button>
+
+      {/* Text Formatting Toolbar */}
+      <TextFormattingToolbar
+        isVisible={showToolbar}
+        position={toolbarPosition}
+        onClose={() => setShowToolbar(false)}
+        onFormatChange={handleFormatChange}
+        currentFormats={currentFormats}
+      />
     </div>
   );
 }
