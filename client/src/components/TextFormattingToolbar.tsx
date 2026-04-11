@@ -1,4 +1,4 @@
-import { Bold, Italic, Underline, Type, Palette, X } from "lucide-react";
+import { Bold, Italic, Underline, Type, Palette, X, Link, List, ListOrdered } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 
@@ -7,12 +7,15 @@ interface TextFormattingToolbarProps {
   position: { x: number; y: number };
   onClose: () => void;
   onFormatChange: (format: string, value: any) => void;
+  onHyperlinkClick: () => void;
   currentFormats: {
     bold: boolean;
     italic: boolean;
     underline: boolean;
     fontSize: number;
     color: string;
+    bulletList: boolean;
+    numberedList: boolean;
   };
 }
 
@@ -21,6 +24,7 @@ export function TextFormattingToolbar({
   position,
   onClose,
   onFormatChange,
+  onHyperlinkClick,
   currentFormats,
 }: TextFormattingToolbarProps) {
   const [showColorPicker, setShowColorPicker] = useState(false);
@@ -164,6 +168,45 @@ export function TextFormattingToolbar({
           </div>
         )}
       </div>
+
+      {/* Divider */}
+      <div className="w-px h-6 bg-border" />
+
+      {/* Bullet List Button */}
+      <Button
+        variant={currentFormats.bulletList ? "default" : "outline"}
+        size="sm"
+        onClick={() => onFormatChange("bulletList", !currentFormats.bulletList)}
+        title="Bullet List"
+        className="w-8 h-8 p-0"
+      >
+        <List className="w-4 h-4" />
+      </Button>
+
+      {/* Numbered List Button */}
+      <Button
+        variant={currentFormats.numberedList ? "default" : "outline"}
+        size="sm"
+        onClick={() => onFormatChange("numberedList", !currentFormats.numberedList)}
+        title="Numbered List"
+        className="w-8 h-8 p-0"
+      >
+        <ListOrdered className="w-4 h-4" />
+      </Button>
+
+      {/* Divider */}
+      <div className="w-px h-6 bg-border" />
+
+      {/* Hyperlink Button */}
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={onHyperlinkClick}
+        title="Insert Hyperlink"
+        className="w-8 h-8 p-0"
+      >
+        <Link className="w-4 h-4" />
+      </Button>
 
       {/* Close Button */}
       <Button

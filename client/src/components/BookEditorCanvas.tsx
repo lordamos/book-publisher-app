@@ -2,13 +2,18 @@ import { Page } from "@shared/types";
 import { useRef, useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { TextFormattingToolbar } from "./TextFormattingToolbar";
+import { HyperlinkDialog } from "./HyperlinkDialog";
 import {
   applyTextFormat,
   detectCurrentFormats,
   hasTextSelection,
   getSelectionPosition,
-  type TextFormat,
 } from "@/lib/textFormatting";
+import {
+  applyListFormat,
+  detectListFormat,
+  insertHyperlink,
+} from "@/lib/listFormatting";
 
 interface BookEditorCanvasProps {
   page: Page;
@@ -31,12 +36,15 @@ export function BookEditorCanvas({
   const [isEditing, setIsEditing] = useState<number | null>(null);
   const [showToolbar, setShowToolbar] = useState(false);
   const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
-  const [currentFormats, setCurrentFormats] = useState<TextFormat>({
+  const [showHyperlinkDialog, setShowHyperlinkDialog] = useState(false);
+  const [currentFormats, setCurrentFormats] = useState({
     bold: false,
     italic: false,
     underline: false,
     fontSize: 16,
     color: "#000000",
+    bulletList: false,
+    numberedList: false,
   });
   const [content, setContent] = useState(() => {
     try {
@@ -177,19 +185,45 @@ export function BookEditorCanvas({
       setToolbarPosition(position);
       setShowToolbar(true);
       const formats = detectCurrentFormats();
-      setCurrentFormats(formats);
+      const listFormat = detectListFormat();
+      setCurrentFormats({
+        ...formats,
+        bulletList: listFormat.type === "bullet",
+        numberedList: listFormat.type === "numbered",
+      });
     } else {
       setShowToolbar(false);
     }
   };
 
   const handleFormatChange = (format: string, value: any) => {
-    applyTextFormat(format, value);
+    if (format === "bulletList") {
+      applyListFormat("bullet");
+    } else if (format === "numberedList") {
+      applyListFormat("numbered");
+    } else {
+      applyTextFormat(format, value);
+    }
     // Update current formats after applying
     setTimeout(() => {
       const formats = detectCurrentFormats();
-      setCurrentFormats(formats);
+      const listFormat = detectListFormat();
+      setCurrentFormats({
+        ...formats,
+        bulletList: listFormat.type === "bullet",
+        numberedList: listFormat.type === "numbered",
+      });
     }, 0);
+  };
+
+  const handleHyperlinkInsert = (url: string, text: string) => {
+    if (url) {
+      insertHyperlink(url, text);
+    } else {
+      // Remove link
+      document.execCommand("unlink", false);
+    }
+    setShowHyperlinkDialog(false);
   };
 
   return (
@@ -300,7 +334,16 @@ export function BookEditorCanvas({
         position={toolbarPosition}
         onClose={() => setShowToolbar(false)}
         onFormatChange={handleFormatChange}
+        onHyperlinkClick={() => setShowHyperlinkDialog(true)}
         currentFormats={currentFormats}
+      />
+
+      {/* Hyperlink Dialog */}
+      <HyperlinkDialog
+        isOpen={showHyperlinkDialog}
+        onClose={() => setShowHyperlinkDialog(false)}
+        onInsert={handleHyperlinkInsert}
+        selectedText={window.getSelection()?.toString() || ""}
       />
     </div>
   );
