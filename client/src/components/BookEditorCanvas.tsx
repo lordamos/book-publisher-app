@@ -3,6 +3,8 @@ import { useRef, useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { TextFormattingToolbar } from "./TextFormattingToolbar";
 import { HyperlinkDialog } from "./HyperlinkDialog";
+import { ImageUploadDialog } from "./ImageUploadDialog";
+import { ImageResizeHandle } from "./ImageResizeHandle";
 import {
   applyTextFormat,
   detectCurrentFormats,
@@ -14,6 +16,8 @@ import {
   detectListFormat,
   insertHyperlink,
 } from "@/lib/listFormatting";
+import { calculateCenterPosition } from "@/lib/imageUpload";
+import { Image as ImageIcon } from "lucide-react";
 
 interface BookEditorCanvasProps {
   page: Page;
@@ -37,6 +41,7 @@ export function BookEditorCanvas({
   const [showToolbar, setShowToolbar] = useState(false);
   const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
   const [showHyperlinkDialog, setShowHyperlinkDialog] = useState(false);
+  const [showImageUploadDialog, setShowImageUploadDialog] = useState(false);
   const [currentFormats, setCurrentFormats] = useState({
     bold: false,
     italic: false,
@@ -226,6 +231,48 @@ export function BookEditorCanvas({
     setShowHyperlinkDialog(false);
   };
 
+  const handleImageInsert = (imageUrl: string, width: number, height: number) => {
+    const newContent = { ...content };
+    const position = calculateCenterPosition(700, 900, width, height);
+    
+    newContent.images.push({
+      url: imageUrl,
+      width,
+      height,
+      x: position.x,
+      y: position.y,
+    });
+    
+    setContent(newContent);
+    onContentChange?.(newContent);
+    updatePageMutation.mutate({
+      pageId: page.id,
+      data: { content: JSON.stringify(newContent) },
+    });
+  };
+
+  const handleImageResize = (imageId: string, x: number, y: number, width: number, height: number) => {
+    const idx = parseInt(imageId.replace('img-', ''), 10);
+    const newContent = { ...content };
+    if (newContent.images[idx]) {
+      newContent.images[idx] = { ...newContent.images[idx], x, y, width, height };
+      setContent(newContent);
+      onContentChange?.(newContent);
+    }
+  };
+
+  const handleImageDelete = (imageId: string) => {
+    const idx = parseInt(imageId.replace('img-', ''), 10);
+    const newContent = { ...content };
+    newContent.images.splice(idx, 1);
+    setContent(newContent);
+    onContentChange?.(newContent);
+    updatePageMutation.mutate({
+      pageId: page.id,
+      data: { content: JSON.stringify(newContent) },
+    });
+  };
+
   return (
     <div
       ref={canvasRef}
@@ -294,39 +341,67 @@ export function BookEditorCanvas({
 
         {/* Images */}
         {content.images?.map((image: any, idx: number) => (
-          <div
-            key={`img-${idx}`}
-            className={`absolute border-2 transition-colors ${
-              selectedElements.includes(content.textBlocks.length + idx)
-                ? "border-primary"
-                : "border-transparent hover:border-primary/30"
-            }`}
-            style={{
-              left: `${image.x}px`,
-              top: `${image.y}px`,
-              width: `${image.width}px`,
-              height: `${image.height}px`,
-              cursor: "move",
-            }}
-            onMouseDown={(e) => handleMouseDown(e, idx, "image")}
-          >
-            <img
-              src={image.url}
-              alt="Page element"
-              className="w-full h-full object-cover"
-              draggable={false}
+          <div key={`img-${idx}`}>
+            <div
+              className={`absolute transition-colors ${
+                selectedElements.includes(content.textBlocks.length + idx)
+                  ? "border-2 border-primary"
+                  : "border-2 border-transparent hover:border-primary/30"
+              }`}
+              style={{
+                left: `${image.x}px`,
+                top: `${image.y}px`,
+                width: `${image.width}px`,
+                height: `${image.height}px`,
+                cursor: "move",
+              }}
+              onClick={() => onElementSelect([content.textBlocks.length + idx])}
+              onMouseDown={(e) => handleMouseDown(e, idx, "image")}
+            >
+              <img
+                src={image.url}
+                alt="Page element"
+                className="w-full h-full object-cover"
+                draggable={false}
+              />
+            </div>
+
+            {/* Image Resize Handles */}
+            <ImageResizeHandle
+              imageId={`img-${idx}`}
+              x={image.x}
+              y={image.y}
+              width={image.width}
+              height={image.height}
+              onResize={handleImageResize}
+              onDelete={handleImageDelete}
+              isSelected={selectedElements.includes(content.textBlocks.length + idx)}
+              canvasWidth={700}
+              canvasHeight={900}
             />
           </div>
         ))}
       </div>
 
-      {/* Add Text Button */}
-      <button
-        onClick={handleAddTextBlock}
-        className="absolute bottom-4 right-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity"
-      >
-        + Add Text
-      </button>
+      {/* Action Buttons */}
+      <div className="absolute bottom-4 right-4 flex gap-2">
+        {/* Add Text Button */}
+        <button
+          onClick={handleAddTextBlock}
+          className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity"
+        >
+          + Add Text
+        </button>
+
+        {/* Add Image Button */}
+        <button
+          onClick={() => setShowImageUploadDialog(true)}
+          className="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:opacity-90 transition-opacity flex items-center gap-2"
+        >
+          <ImageIcon className="w-4 h-4" />
+          Add Image
+        </button>
+      </div>
 
       {/* Text Formatting Toolbar */}
       <TextFormattingToolbar
@@ -344,6 +419,13 @@ export function BookEditorCanvas({
         onClose={() => setShowHyperlinkDialog(false)}
         onInsert={handleHyperlinkInsert}
         selectedText={window.getSelection()?.toString() || ""}
+      />
+
+      {/* Image Upload Dialog */}
+      <ImageUploadDialog
+        isOpen={showImageUploadDialog}
+        onClose={() => setShowImageUploadDialog(false)}
+        onInsert={handleImageInsert}
       />
     </div>
   );
