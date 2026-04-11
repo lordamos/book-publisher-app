@@ -20,6 +20,7 @@ export function BookEditorCanvas({
   const canvasRef = useRef<HTMLDivElement>(null);
   const pageContentRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState<{ index: number; startX: number; startY: number; type: string } | null>(null);
+  const [isEditing, setIsEditing] = useState<number | null>(null);
   const [content, setContent] = useState(() => {
     try {
       return page.content ? JSON.parse(page.content) : { textBlocks: [], images: [] };
@@ -32,6 +33,17 @@ export function BookEditorCanvas({
 
   const handleMouseDown = (e: React.MouseEvent, index: number, type: "text" | "image") => {
     if (e.button !== 0) return; // Only left click
+    
+    // If double-clicking on text, enter edit mode instead of dragging
+    if (type === "text" && e.detail === 2) {
+      setIsEditing(index);
+      return;
+    }
+    
+    // If already editing, don't start drag
+    if (isEditing !== null) {
+      return;
+    }
     
     if (e.shiftKey) {
       const newSelected = selectedElements.includes(index)
@@ -57,6 +69,9 @@ export function BookEditorCanvas({
       const rect = pageContentRef.current.getBoundingClientRect();
       const deltaX = e.clientX - dragging.startX;
       const deltaY = e.clientY - dragging.startY;
+
+      // Only drag if moved more than 5px to avoid accidental drags
+      if (Math.abs(deltaX) < 5 && Math.abs(deltaY) < 5) return;
 
       const newContent = { ...content };
 
@@ -123,6 +138,21 @@ export function BookEditorCanvas({
     onContentChange?.(newContent);
   };
 
+  const handleTextBlockClick = (e: React.MouseEvent, index: number) => {
+    // Allow text selection and editing on click
+    e.stopPropagation();
+    setIsEditing(index);
+    onElementSelect([index]);
+  };
+
+  const handleTextBlockBlur = (index: number) => {
+    setIsEditing(null);
+    updatePageMutation.mutate({
+      pageId: page.id,
+      data: { content: JSON.stringify(content) },
+    });
+  };
+
   return (
     <div
       ref={canvasRef}
@@ -147,11 +177,9 @@ export function BookEditorCanvas({
         {content.textBlocks?.map((block: any, idx: number) => (
           <div
             key={`text-${idx}`}
-            className={`absolute p-2 cursor-move border-2 transition-colors ${
-              selectedElements.includes(idx)
-                ? "border-primary bg-primary/5"
-                : "border-transparent hover:border-primary/30"
-            }`}
+            className={`absolute p-2 border-2 transition-colors ${
+              isEditing === idx ? "cursor-text border-primary bg-primary/10" : "cursor-move border-transparent hover:border-primary/30"
+            } ${selectedElements.includes(idx) ? "border-primary bg-primary/5" : ""}`}
             style={{
               left: `${block.x}px`,
               top: `${block.y}px`,
@@ -164,16 +192,24 @@ export function BookEditorCanvas({
               minHeight: "20px",
               maxWidth: "600px",
               outline: "none",
+              userSelect: isEditing === idx ? "text" : "none",
             }}
-            onMouseDown={(e) => handleMouseDown(e, idx, "text")}
-            contentEditable
+            onClick={(e) => handleTextBlockClick(e, idx)}
+            onMouseDown={(e) => {
+              if (isEditing !== idx) {
+                handleMouseDown(e, idx, "text");
+              }
+            }}
+            contentEditable={isEditing === idx}
             suppressContentEditableWarning
             onInput={(e) => handleTextChange(idx, e.currentTarget.innerText)}
-            onBlur={() => {
-              updatePageMutation.mutate({
-                pageId: page.id,
-                data: { content: JSON.stringify(content) },
-              });
+            onBlur={() => handleTextBlockBlur(idx)}
+            onKeyDown={(e) => {
+              // Allow Escape to exit editing mode
+              if (e.key === "Escape") {
+                setIsEditing(null);
+                e.currentTarget.blur();
+              }
             }}
           >
             {block.text}
