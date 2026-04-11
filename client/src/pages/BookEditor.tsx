@@ -1,4 +1,5 @@
 import { useParams } from "wouter";
+import { Page } from "@shared/types";
 import { trpc } from "@/lib/trpc";
 import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -6,6 +7,8 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { BookEditorCanvas } from "@/components/BookEditorCanvas";
 import { BookEditorToolbar } from "@/components/BookEditorToolbar";
 import { BookEditorSidebar } from "@/components/BookEditorSidebar";
+import { PageManagementSidebar } from "@/components/PageManagementSidebar";
+import { duplicatePage, deletePage, addPageAfter } from "@/lib/pageManagement";
 
 export default function BookEditor() {
   const { bookId } = useParams<{ bookId: string }>();
@@ -18,6 +21,16 @@ export default function BookEditor() {
 
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [selectedElements, setSelectedElements] = useState<number[]>([]);
+  const [pages, setPages] = useState<Page[]>([]);
+  
+  const createPageMutation = trpc.pages.create.useMutation();
+  const updatePageMutation = trpc.pages.update.useMutation();
+
+  useEffect(() => {
+    if (pagesQuery.data) {
+      setPages(pagesQuery.data);
+    }
+  }, [pagesQuery.data]);
 
   if (bookQuery.isLoading) {
     return (
@@ -42,8 +55,83 @@ export default function BookEditor() {
   }
 
   const book = bookQuery.data;
-  const pages = pagesQuery.data || [];
   const currentPage = pages[currentPageIndex];
+  const currentPageId = currentPage?.id || 0;
+
+  const handleSelectPage = (pageId: number) => {
+    const index = pages.findIndex((p) => p.id === pageId);
+    if (index !== -1) {
+      setCurrentPageIndex(index);
+    }
+  };
+
+  const handleDeletePage = (pageId: number) => {
+    if (pages.length === 1) {
+      alert("Cannot delete the last page");
+      return;
+    }
+    
+    updatePageMutation.mutate({ pageId, data: { content: null } }, {
+      onSuccess: () => {
+        const newPages = deletePage(pages, pageId);
+        setPages(newPages);
+        if (currentPageIndex >= newPages.length) {
+          setCurrentPageIndex(newPages.length - 1);
+        }
+      },
+    });
+  };
+
+  const handleDuplicatePage = (pageId: number) => {
+    const newPages = duplicatePage(pages, pageId);
+    const newPage = newPages[newPages.length - 1];
+    
+    createPageMutation.mutate({
+      bookId: bookIdNum,
+      pageNumber: newPage.pageNumber,
+      templateType: "blank",
+      content: newPage.content || JSON.stringify({ textBlocks: [], images: [] }),
+    }, {
+      onSuccess: () => {
+        pagesQuery.refetch();
+      },
+    });
+  };
+
+  const handleAddPageAfter = (pageId: number) => {
+    const pageIndex = pages.findIndex((p) => p.id === pageId);
+    if (pageIndex === -1) return;
+    
+    createPageMutation.mutate({
+      bookId: bookIdNum,
+      pageNumber: pageIndex + 2,
+      templateType: "blank",
+      content: JSON.stringify({ textBlocks: [], images: [] }),
+    }, {
+      onSuccess: () => {
+        pagesQuery.refetch();
+      },
+    });
+  };
+
+  const handleAddNewPage = () => {
+    createPageMutation.mutate({
+      bookId: bookIdNum,
+      pageNumber: pages.length + 1,
+      templateType: "blank",
+      content: JSON.stringify({ textBlocks: [], images: [] }),
+    }, {
+      onSuccess: () => {
+        pagesQuery.refetch();
+      },
+    });
+  };
+
+  const handleReorderPages = (newPages: Page[]) => {
+    setPages(newPages);
+    // Reordering is handled by the sidebar drag-and-drop
+    // Individual page order updates can be handled separately if needed
+  };
 
   return (
     <DashboardLayout>
@@ -58,6 +146,18 @@ export default function BookEditor() {
 
         {/* Main Editor Area */}
         <div className="flex-1 flex gap-4 overflow-hidden">
+          {/* Page Management Sidebar */}
+          <PageManagementSidebar
+            pages={pages}
+            selectedPageId={currentPageId}
+            onSelectPage={handleSelectPage}
+            onDeletePage={handleDeletePage}
+            onDuplicatePage={handleDuplicatePage}
+            onAddPageAfter={handleAddPageAfter}
+            onAddNewPage={handleAddNewPage}
+            onReorderPages={handleReorderPages}
+          />
+
           {/* Canvas */}
           <div className="flex-1 flex items-center justify-center bg-muted rounded-lg overflow-hidden">
             {currentPage ? (
@@ -74,7 +174,7 @@ export default function BookEditor() {
             )}
           </div>
 
-          {/* Sidebar */}
+          {/* Right Sidebar */}
           <BookEditorSidebar
             book={book}
             currentPage={currentPage}
