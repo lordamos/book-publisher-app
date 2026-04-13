@@ -1,9 +1,12 @@
 import { Book } from "@shared/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChevronLeft, ChevronRight, Plus, Save, Download } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Save, Download, FileDown } from "lucide-react";
 import { useState } from "react";
 import { KDPExportDialog } from "./KDPExportDialog";
+import { ExportDialog } from "./ExportDialog";
+import { PDFExportOptions } from "@/lib/pdfExport";
+import { trpc } from "@/lib/trpc";
 
 interface BookEditorToolbarProps {
   book: Book;
@@ -19,6 +22,10 @@ export function BookEditorToolbar({
   onPageChange,
 }: BookEditorToolbarProps) {
   const [isKDPDialogOpen, setIsKDPDialogOpen] = useState(false);
+  const [isPDFDialogOpen, setIsPDFDialogOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+
+  const exportPDFMutation = trpc.export.pdf.useMutation();
 
   return (
     <>
@@ -67,6 +74,16 @@ export function BookEditorToolbar({
             <Save className="w-4 h-4" />
           </Button>
           <Button
+            variant="outline"
+            size="sm"
+            title="Export to PDF"
+            onClick={() => setIsPDFDialogOpen(true)}
+            className="gap-2"
+          >
+            <FileDown className="w-4 h-4" />
+            Export PDF
+          </Button>
+          <Button
             variant="default"
             size="sm"
             title="Export to Amazon KDP"
@@ -78,6 +95,42 @@ export function BookEditorToolbar({
           </Button>
         </div>
       </div>
+
+      {/* PDF Export Dialog */}
+      <ExportDialog
+        isOpen={isPDFDialogOpen}
+        onClose={() => setIsPDFDialogOpen(false)}
+        onExport={(options: PDFExportOptions) => {
+          setIsExporting(true);
+          exportPDFMutation.mutate(
+            {
+              bookId: book.id.toString(),
+              options,
+            },
+            {
+              onSuccess: (result: any) => {
+                if (result.url) {
+                  // Download the PDF
+                  const link = document.createElement("a");
+                  link.href = result.url;
+                  link.download = options.filename;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }
+                setIsExporting(false);
+                setIsPDFDialogOpen(false);
+              },
+              onError: () => {
+                setIsExporting(false);
+              },
+            }
+          );
+        }}
+        isLoading={isExporting}
+        bookTitle={book.title}
+        totalPages={totalPages}
+      />
 
       {/* KDP Export Dialog */}
       <KDPExportDialog
