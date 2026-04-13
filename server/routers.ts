@@ -19,6 +19,7 @@ import { batchExportRouter } from "./routers/batchexport";
 import { coverTemplatesRouter } from "./routers/covertemplates";
 import { fontsRouter } from "./routers/fonts";
 import { exportRouter } from "./routers/export";
+import { multiagentRouter } from "./routers/multiagent";
 import { z } from "zod";
 import {
   getBooksByUserId,
@@ -48,6 +49,7 @@ export const appRouter = router({
   merge: mergeRouter,
   sidebyside: sideBySideRouter,
   diffexport: diffExportRouter,
+  multiagent: multiagentRouter,
   batchexport: batchExportRouter,
   covertemplates: coverTemplatesRouter,
   fonts: fontsRouter,

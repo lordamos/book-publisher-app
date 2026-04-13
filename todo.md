@@ -374,3 +374,16 @@
 - [x] Test accessibility with keyboard navigation (focus trap, Escape handling)
 - [x] Verify TypeScript compilation (clean)
 - [x] All 480 tests passing (no regressions)
+
+
+## Phase 25: Multi-Agent Orchestration System
+- [ ] Create agent infrastructure and utilities
+- [ ] Implement Writer Agent for content generation
+- [ ] Implement Editor Agent for content improvement
+- [ ] Implement Publisher Agent for formatting and export
+- [ ] Implement Marketer Agent for marketing materials
+- [ ] Create Orchestrator to coordinate all agents
+- [ ] Add self-critique loop for iterative improvement
+- [ ] Create tRPC endpoint for multi-agent workflow
+- [ ] Add tests for multi-agent system
+- [ ] Integrate into UI and verify
