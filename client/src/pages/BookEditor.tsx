@@ -9,6 +9,8 @@ import { BookEditorToolbar } from "@/components/BookEditorToolbar";
 import { BookEditorSidebar } from "@/components/BookEditorSidebar";
 import { PageManagementSidebar } from "@/components/PageManagementSidebar";
 import { duplicatePage, deletePage, addPageAfter } from "@/lib/pageManagement";
+import { useHistory } from "@/hooks/useHistory";
+import { createPageCommand } from "@/lib/commandHistory";
 
 export default function BookEditor() {
   const { bookId } = useParams<{ bookId: string }>();
@@ -25,6 +27,7 @@ export default function BookEditor() {
   
   const createPageMutation = trpc.pages.create.useMutation();
   const updatePageMutation = trpc.pages.update.useMutation();
+  const history = useHistory({ maxSize: 100 });
 
   useEffect(() => {
     if (pagesQuery.data) {
@@ -71,31 +74,58 @@ export default function BookEditor() {
       return;
     }
     
-    updatePageMutation.mutate({ pageId, data: { content: null } }, {
-      onSuccess: () => {
-        const newPages = deletePage(pages, pageId);
-        setPages(newPages);
-        if (currentPageIndex >= newPages.length) {
-          setCurrentPageIndex(newPages.length - 1);
-        }
+    const previousPages = [...pages];
+    const deletedPageIndex = pages.findIndex(p => p.id === pageId);
+    
+    const command = createPageCommand(
+      'delete',
+      `Delete page ${deletedPageIndex + 1}`,
+      () => {
+        updatePageMutation.mutate({ pageId, data: { content: null } }, {
+          onSuccess: () => {
+            const newPages = deletePage(pages, pageId);
+            setPages(newPages);
+            if (currentPageIndex >= newPages.length) {
+              setCurrentPageIndex(newPages.length - 1);
+            }
+          },
+        });
       },
-    });
+      () => {
+        setPages(previousPages);
+        setCurrentPageIndex(deletedPageIndex);
+      }
+    );
+    
+    history.execute(command);
   };
 
   const handleDuplicatePage = (pageId: number) => {
+    const previousPages = [...pages];
     const newPages = duplicatePage(pages, pageId);
     const newPage = newPages[newPages.length - 1];
     
-    createPageMutation.mutate({
-      bookId: bookIdNum,
-      pageNumber: newPage.pageNumber,
-      templateType: "blank",
-      content: newPage.content || JSON.stringify({ textBlocks: [], images: [] }),
-    }, {
-      onSuccess: () => {
-        pagesQuery.refetch();
+    const command = createPageCommand(
+      'duplicate',
+      `Duplicate page`,
+      () => {
+        createPageMutation.mutate({
+          bookId: bookIdNum,
+          pageNumber: newPage.pageNumber,
+          templateType: "blank",
+          content: newPage.content || JSON.stringify({ textBlocks: [], images: [] }),
+        }, {
+          onSuccess: () => {
+            pagesQuery.refetch();
+          },
+        });
       },
-    });
+      () => {
+        setPages(previousPages);
+      }
+    );
+    
+    history.execute(command);
   };
 
   const handleAddPageAfter = (pageId: number) => {
@@ -115,22 +145,47 @@ export default function BookEditor() {
   };
 
   const handleAddNewPage = () => {
-    createPageMutation.mutate({
-      bookId: bookIdNum,
-      pageNumber: pages.length + 1,
-      templateType: "blank",
-      content: JSON.stringify({ textBlocks: [], images: [] }),
-    }, {
-      onSuccess: () => {
-        pagesQuery.refetch();
+    const previousPages = [...pages];
+    const newPageNumber = pages.length + 1;
+    
+    const command = createPageCommand(
+      'create',
+      `Add new page ${newPageNumber}`,
+      () => {
+        createPageMutation.mutate({
+          bookId: bookIdNum,
+          pageNumber: newPageNumber,
+          templateType: "blank",
+          content: JSON.stringify({ textBlocks: [], images: [] }),
+        }, {
+          onSuccess: () => {
+            pagesQuery.refetch();
+          },
+        });
       },
-    });
+      () => {
+        setPages(previousPages);
+      }
+    );
+    
+    history.execute(command);
   };
 
   const handleReorderPages = (newPages: Page[]) => {
-    setPages(newPages);
-    // Reordering is handled by the sidebar drag-and-drop
-    // Individual page order updates can be handled separately if needed
+    const previousPages = [...pages];
+    
+    const command = createPageCommand(
+      'reorder',
+      'Reorder pages',
+      () => {
+        setPages(newPages);
+      },
+      () => {
+        setPages(previousPages);
+      }
+    );
+    
+    history.execute(command);
   };
 
   return (

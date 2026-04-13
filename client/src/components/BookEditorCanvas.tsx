@@ -18,6 +18,8 @@ import {
 } from "@/lib/listFormatting";
 import { calculateCenterPosition } from "@/lib/imageUpload";
 import { Image as ImageIcon } from "lucide-react";
+import { useHistory } from "@/hooks/useHistory";
+import { createTextCommand, createImageCommand } from "@/lib/commandHistory";
 
 interface BookEditorCanvasProps {
   page: Page;
@@ -60,6 +62,7 @@ export function BookEditorCanvas({
   });
 
   const updatePageMutation = trpc.pages.update.useMutation();
+  const history = useHistory({ maxSize: 100 });
 
   const handleMouseDown = (e: React.MouseEvent, index: number, type: "text" | "image") => {
     if (e.button !== 0) return; // Only left click
