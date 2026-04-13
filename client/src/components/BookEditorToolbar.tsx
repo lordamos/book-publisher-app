@@ -13,6 +13,7 @@ interface BookEditorToolbarProps {
   currentPageIndex: number;
   totalPages: number;
   onPageChange: (index: number) => void;
+  onAddNewPage?: () => void;
 }
 
 export function BookEditorToolbar({
@@ -20,6 +21,7 @@ export function BookEditorToolbar({
   currentPageIndex,
   totalPages,
   onPageChange,
+  onAddNewPage,
 }: BookEditorToolbarProps) {
   const [isKDPDialogOpen, setIsKDPDialogOpen] = useState(false);
   const [isPDFDialogOpen, setIsPDFDialogOpen] = useState(false);
@@ -67,7 +69,12 @@ export function BookEditorToolbar({
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" title="Add new page">
+          <Button
+            variant="outline"
+            size="sm"
+            title="Add new page"
+            onClick={onAddNewPage}
+          >
             <Plus className="w-4 h-4" />
           </Button>
           <Button variant="outline" size="sm" title="Save changes">

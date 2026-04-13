@@ -142,6 +142,7 @@ export default function BookEditor() {
           currentPageIndex={currentPageIndex}
           totalPages={pages.length}
           onPageChange={setCurrentPageIndex}
+          onAddNewPage={handleAddNewPage}
         />
 
         {/* Main Editor Area */}
